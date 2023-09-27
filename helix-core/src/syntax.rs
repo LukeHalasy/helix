@@ -925,7 +925,7 @@ pub struct Syntax {
     loader: Arc<Loader>,
 }
 
-fn byte_range_to_str(range: std::ops::Range<usize>, source: RopeSlice) -> Cow<str> {
+pub fn byte_range_to_str(range: std::ops::Range<usize>, source: RopeSlice) -> Cow<str> {
     Cow::from(source.byte_slice(range))
 }
 
@@ -1291,6 +1291,7 @@ impl Syntax {
                 // If there's no captures, skip the layer
                 captures.peek()?;
 
+                // NOTE: LAst thought.. maybe its in here idk
                 Some(HighlightIterLayer {
                     highlight_end_stack: Vec::new(),
                     scope_stack: vec![LocalScope {
@@ -1799,6 +1800,8 @@ impl HighlightConfiguration {
                 best_index.map(Highlight)
             })
             .collect();
+        // NOTE: SHOULD I ADD IT HERE INSTEAD ??
+        // QUESTIONS TO ANSWER: Why doesnt it work when I remove the key from the themes
 
         self.highlight_indices.store(Arc::new(indices));
     }
@@ -2234,6 +2237,9 @@ impl<'a> Iterator for HighlightIter<'a> {
                 continue 'main;
             }
 
+            // NOTE: THIS COULD BE THE RIGHT PLACE
+            // I should store a special index maybe for the color related captures then push the highlights
+
             // Otherwise, this capture must represent a highlight.
             // If this exact range has already been highlighted by an earlier pattern, or by
             // a different layer, then skip over this one.
@@ -2276,6 +2282,7 @@ impl<'a> Iterator for HighlightIter<'a> {
                 }
             }
 
+            // NOTE: Highlight is different from theme. The theme is likely always stored
             let current_highlight = layer.config.highlight_indices.load()[capture.index as usize];
 
             // If this node represents a local definition, then store the current
@@ -2288,6 +2295,21 @@ impl<'a> Iterator for HighlightIter<'a> {
             if let Some(highlight) = reference_highlight.or(current_highlight) {
                 self.last_highlight_range = Some((range.start, range.end, layer.depth));
                 layer.highlight_end_stack.push(range.end);
+                // NOTE: I think I may be able to, if the name of the highlight = color, then I can
+                // push a new highlight to the list thats style is equal to the text ?
+                // log::error!("About to apply highlighting for highlight");
+                // log::error!("{:?}", highlight);
+                // log::error!("{:?}", layer.config.names());
+
+                // let name = byte_range_to_str(capture.node.byte_range(), self.source);
+                // log::error!("{:?}", name);
+
+                // log::info!(
+                //     "Highlight name: {:?}",
+                //     layer.config.
+                //     // cx.editor.theme.scope(highlight.0).to_string()
+                // );
+
                 return self
                     .emit_event(range.start, Some(HighlightEvent::HighlightStart(highlight)));
             }
@@ -2321,6 +2343,7 @@ pub fn merge<I: Iterator<Item = HighlightEvent>>(
     iter: I,
     spans: Vec<(usize, std::ops::Range<usize>)>,
 ) -> Merge<I> {
+    // NOTE: Alrighty what does this do
     let spans = Box::new(spans.into_iter());
     let mut merge = Merge {
         iter,

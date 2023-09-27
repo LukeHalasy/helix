@@ -1,0 +1,75 @@
+# Author: Luke Halasy <lhalasy@gmail.com>
+# Adapted from https://github.com/tonsky/sublime-scheme-alabaster
+
+"comment"               = { bg = "#334938" }
+"constant"              = { fg = "title_green",  modifiers = ["bold"] }
+"string"                = { bg = "#2D464B" }
+"punctuation.delimiter" = { fg = "fg_bg_average" }
+"operator"              = { fg = "fg_bg_average" }
+# "keyword" = { modifiers = ["dim"] }
+
+"function.declaration" = { bg = "#22494E" }
+# "enum.declaration" = { bg = "blue" }
+
+"ui.background" = { fg = "fg", bg = "bg" }
+
+"ui.cursor" = { bg = "#82E3BA", fg = "bg" }
+"ui.cursor.match" = { bg = "#AFB996" }
+"ui.selection" = { bg = "#57A288", fg = "bg" }
+
+"ui.linenr.selected" = { bg = "darker_beige" }
+
+"diagnostic" = { bg = "bg", underline = { color = "purple", style = "double_line" } }
+
+"diagnostic.hint"    = { underline = { color = "fg", style = "double_line" } }
+"diagnostic.info"    = { underline = { color = "fg", style = "double_line" } }
+"diagnostic.warning" = { underline = { color = "fg", style = "double_line" } }
+"diagnostic.error"   = { underline = { color = "fg", style = "double_line" }}
+
+"hint" = { bg = "blue", fg = "fg", modifiers = ["bold"]}
+"info" = { bg = "blue", fg = "fg", modifiers = ["bold"]}
+"error" = { bg = "pink", fg = "fg", modifiers = ["bold"] }
+# "warning" = { fg = "underline_darker_beige" }
+
+"diff.plus" = { fg = "dark_brown" }
+"diff.delta" = { fg = "dark_brown" }
+"diff.minus" = { fg = "underline_red" }
+
+"ui.help" = { fg = "fg", bg = "brown" }
+"ui.popup" = { fg = "fg", bg = "darker_beige" }
+"ui.window" = { fg = "fg", bg = "darker_beige" }
+
+"ui.menu" = { fg = "fg", bg = "darker_beige" }
+"ui.menu.selected" = { bg = "#BCA787", fg = "fg" }
+"ui.menu.scroll" = { fg = "fg", bg = "bg" }
+
+# TOML file keys
+# "type" = { bg = "purple" }
+
+"markup.heading.marker" = "fg_bg_average"
+"markup.heading.1" = { bg = "green" }
+"markup.heading.2" = { bg = "blue" }
+"markup.heading.3" = { bg = "purple" }
+"markup.heading.4" = { bg = "pink" }
+
+[palette]
+bg                = "#0F3535"
+fg                = "#F3F3F3"
+fg_bg_average     = "#869999"
+
+green             = "#1D4B46"
+blue              = "#D2D4CA"
+darker_beige      = "#D8C9B0"
+brown             = "#BCA787"
+dark_brown        = "#4B361B"
+purple            = "#E3D5CA"
+pink              = "#E8C9BF"
+
+underline_red     = "#ec3824"
+underline_orange  = "#EC9023"
+
+selection_blue    = "#C2CBCA"
+selection_anchors = "#5181C4"
+
+title_green       = "#45753E"
+title_red         = "#da5938"

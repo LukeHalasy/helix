@@ -3,13 +3,13 @@ use std::cmp::min;
 use helix_core::doc_formatter::{DocumentFormatter, GraphemeSource, TextFormat};
 use helix_core::graphemes::Grapheme;
 use helix_core::str_utils::char_to_byte_idx;
-use helix_core::syntax::Highlight;
 use helix_core::syntax::HighlightEvent;
+use helix_core::syntax::{byte_range_to_str, Highlight};
 use helix_core::text_annotations::TextAnnotations;
-use helix_core::{visual_offset_from_block, Position, RopeSlice};
+use helix_core::{visual_offset_from_block, Position, Range, RopeSlice};
 use helix_view::editor::{WhitespaceConfig, WhitespaceRenderValue};
 use helix_view::graphics::Rect;
-use helix_view::theme::Style;
+use helix_view::theme::{Color, Modifier, Style};
 use helix_view::view::ViewPosition;
 use helix_view::Document;
 use helix_view::Theme;
@@ -37,10 +37,43 @@ impl<F: FnMut(&mut TextRenderer, LinePos)> LineDecoration for F {
 /// and yields the active text style and the char_idx where the active
 /// style will have to be recomputed.
 struct StyleIter<'a, H: Iterator<Item = HighlightEvent>> {
+    text: RopeSlice<'a>,
     text_style: Style,
     active_highlights: Vec<Highlight>,
     highlight_iter: H,
     theme: &'a Theme,
+}
+pub fn hex_to_rgb(s: &str) -> Result<Color, String> {
+    if s.len() >= 7 {
+        if let (Ok(red), Ok(green), Ok(blue)) = (
+            u8::from_str_radix(&s[1..3], 16),
+            u8::from_str_radix(&s[3..5], 16),
+            u8::from_str_radix(&s[5..7], 16),
+        ) {
+            return Ok(Color::Rgb(red, green, blue));
+        }
+    }
+
+    Err(format!("Theme: malformed hexcode: {}", s))
+}
+
+pub fn contrast_rgb_color(color: Color) -> Color {
+    match color {
+        Color::Rgb(r, g, b) => {
+            // Calculate the luminance of the background color
+            let luminance = (0.299 * r as f64 + 0.587 * g as f64 + 0.114 * b as f64) / 255.0;
+
+            // Determine a suitable foreground color based on luminance
+            if luminance > 0.5 {
+                // Choose a dark color for light backgrounds
+                Color::Rgb(0, 0, 0) // Black text
+            } else {
+                // Choose a light color for dark backgrounds
+                Color::Rgb(255, 255, 255) // White text
+            }
+        }
+        _ => color,
+    }
 }
 
 impl<H: Iterator<Item = HighlightEvent>> Iterator for StyleIter<'_, H> {
@@ -58,11 +91,69 @@ impl<H: Iterator<Item = HighlightEvent>> Iterator for StyleIter<'_, H> {
                     if start == end {
                         continue;
                     }
+
+                    // highlight_index_reverse = self.theme.scope(highlight.0).to_string();
+                    // if self.active_highlights.contains(&Highlight(1)) == true {
+                    //     let name = byte_range_to_str(start..end, self.text);
+                    //     log::error!("Printing name: {:?}", name);
+
+                    //     if let Ok(color) = hex_to_rgb(&name) {
+                    //         let style = Style::default().bg(color);
+                    //         return Some((style, end));
+                    //     }
+                    // }
+                    // if self.theme.scope(span.0) == "color" {
+                    //     let name = byte_range_to_str(start..end, self.text);
+                    //     log::error!("Printing name: {:?}", name);
+
+                    //     if let Ok(color) = hex_to_rgb(&name) {
+                    //         return Some((Style::default().bg(color), end));
+                    //     }
+                    // }
+                    //
+                    // let range = {
+                    //     // Calculate viewport byte ranges:
+                    //     // Saturating subs to make it inclusive zero indexing.
+                    //     let last_line = text.len_lines().saturating_sub(1);
+                    //     let last_visible_line = (row + height as usize).saturating_sub(1).min(last_line);
+                    //     let start = text.line_to_byte(row.min(last_line));
+                    //     let end = text.line_to_byte(last_visible_line + 1);
+
+                    //     start..end
+                    // };
+                    ///
                     let style = self
                         .active_highlights
                         .iter()
                         .fold(self.text_style, |acc, span| {
-                            acc.patch(self.theme.highlight(span.0))
+                            // How does this work.. doesnt this mix up Highlights and Styles
+                            let mut inner_style = self.theme.highlight(span.0);
+                            // TODO: Change the grammar so it supports the following
+                            // Have different names for each ?
+                            // #fff (prioritize this version, )
+                            // fff
+                            // #ffffff
+                            // ffffff
+                            // hsl(,,) css function
+                            // hsla() css function (the alpha part may not be possible)
+                            // the raw color names that you can specify in toml
+
+                            // TODO: Currently you need to specify a style for color.
+                            // Instead we should automatically insert it somehow ??
+                            if self.theme.scope(span.0) == "color" {
+                                let name = byte_range_to_str(start..end, self.text);
+                                log::error!("Printing name css: {:?}", name);
+
+                                let mut ayo = name.into_owned();
+                                ayo.insert(0, '#');
+
+                                if let Ok(color) = hex_to_rgb(&ayo) {
+                                    inner_style =
+                                        Style::default().bg(color).fg(contrast_rgb_color(color));
+                                }
+                            }
+
+                            acc.patch(inner_style)
                         });
                     return Some((style, end));
                 }
@@ -179,6 +270,7 @@ pub fn render_text<'t>(
     let (mut formatter, mut first_visible_char_idx) =
         DocumentFormatter::new_at_prev_checkpoint(text, text_fmt, text_annotations, offset.anchor);
     let mut styles = StyleIter {
+        text,
         text_style: renderer.text_style,
         active_highlights: Vec::with_capacity(64),
         highlight_iter,

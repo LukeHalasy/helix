@@ -283,6 +283,9 @@ fn build_theme_values(
         }
 
         // these are used both as UI and as highlights
+        // NOTE: Here maybe I should add them ?
+        // Is this the right spot even ?
+        // Is it instead in the place where I get all the capture names ?
         styles.insert(name.clone(), style);
         scopes.push(name);
         highlights.push(style);
@@ -411,7 +414,7 @@ impl ThemePalette {
         Err(format!("Theme: malformed ANSI: {}", s))
     }
 
-    fn hex_string_to_rgb(s: &str) -> Result<Color, String> {
+    pub fn hex_string_to_rgb(s: &str) -> Result<Color, String> {
         if s.len() >= 7 {
             if let (Ok(red), Ok(green), Ok(blue)) = (
                 u8::from_str_radix(&s[1..3], 16),
@@ -511,6 +514,8 @@ impl TryFrom<Value> for ThemePalette {
             _ => return Ok(Self::default()),
         };
 
+        // NOTE: Think I will need to increase capacity her e to account for the color key ?? is that right
+        // or do I change it within the Theme
         let mut palette = HashMap::with_capacity(map.len());
         for (name, value) in map {
             let value = Self::parse_value_as_str(&value)?;

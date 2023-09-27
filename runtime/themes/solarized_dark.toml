@@ -15,6 +15,7 @@
 "function.special" = { fg = "magenta" }
 "comment" = { fg = "base01" }
 "string" = { fg = "cyan" }
+"punctuation.bracket" = { fg = "orange" }
 "constant" = { fg = "cyan" }
 "constant.builtin" = { fg = "cyan", modifiers = ["bold"] }
 "constant.character.escape" = { fg = "red", modifiers = ["bold"] }
@@ -51,7 +52,7 @@
 "ui.cursorline" = { bg = "base03" }
 
 # 状态栏
-"ui.statusline" = { fg = "base03", bg = "base0" }
+"ui.statusline" = { bg = "base02", fg = "base1" }
 "ui.statusline.normal" = { bg = "blue" }
 "ui.statusline.insert" = { bg = "green" }
 "ui.statusline.select" = { bg = "yellow" }
@@ -63,16 +64,20 @@
 "ui.popup" = { bg = "base02" }
 # 影响 补全选中 cmd弹出信息选中
 "ui.menu.selected" = { fg = "base02", bg = "base2"}
-"ui.menu" = { fg = "base0", bg = "base02" }
+# "ui.menu" = { fg = "base0", bg = "base02" }
+"ui.menu" = { bg = "base02" }
 # ??
-"ui.window" = { fg = "base3" }
+# "ui.window" = { fg = "base3" }
+"ui.window" = { bg = "base02" }
 # 命令行 补全的帮助信息
-"ui.help" = { modifiers = ["reversed"] }
+# "ui.help" = { modifiers = ["reversed"] }
+"ui.help" = { bg = "base02" }
 
 # 快捷键窗口 
-"ui.popup.info" = {fg = "base02", bg = "base1", modifiers = ["bold"]}
+# "ui.popup.info" = {fg = "base02", bg = "base1", modifiers = ["bold"]}
+"ui.popup.info" = { bg = "base02" }
 # 快捷键字体
-"ui.text.info" = {fg = "base02", modifiers = ["bold"]}
+"ui.text.info" = {fg = "base1" }
 
 # 普通ui的字体样式
 "ui.text" = { fg = "base1" }

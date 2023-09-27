@@ -107,6 +107,7 @@ impl EditorView {
             Self::highlight_cursorcolumn(doc, view, surface, theme, inner, &text_annotations);
         }
 
+        // NOTE: I think the conversion from Highlight to Style happens in the syntax::merge section
         // Set DAP highlights, if needed.
         if let Some(frame) = editor.current_stack_frame() {
             let dap_line = frame.line.saturating_sub(1);
@@ -304,6 +305,7 @@ impl EditorView {
         };
 
         match doc.syntax() {
+            // SHOULD I DO ANYTHING HERE
             Some(syntax) => {
                 let iter = syntax
                     // TODO: range doesn't actually restrict source, just highlight range
